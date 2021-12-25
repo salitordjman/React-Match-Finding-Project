@@ -4,7 +4,7 @@ import axios from "axios";
 class Api extends React.Component {
   state = {
     persons: {},
-    id: 0,
+    id: 1,
     like: 0,
     dislike: 0,
   };
@@ -12,15 +12,21 @@ class Api extends React.Component {
     this.GetGet();
   }
   LikeFunc = () => {
-    this.state.like++;
+    this.setState((prev) => ({
+      like: prev.like + 1,
+    }));
     this.GetGet();
   };
   DisLikeFunc = () => {
-    this.state.dislike++;
+    this.setState((prev) => ({
+      dislike: prev.dislike + 1,
+    }));
     this.GetGet();
   };
   GetGet = () => {
-    this.state.id++;
+    this.setState((prev) => ({
+      id: prev.id + 1,
+    }));
 
     axios
       .get(`https://61c70ce390318500175472d8.mockapi.io/match/${this.state.id}`)
