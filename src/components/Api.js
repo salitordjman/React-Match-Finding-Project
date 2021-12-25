@@ -1,110 +1,77 @@
-import React, { createRef } from "react";
-import Update from "./Update";
+import React from "react";
 import axios from "axios";
 
 class Api extends React.Component {
-  state = { persons: [], first: "", last: "" };
-  btnRef = createRef();
+  state = {
+    persons: {},
+    id: 0,
+    like: 0,
+    dislike: 0,
+  };
   componentDidMount() {
     this.GetGet();
   }
-
-  handleChange = (event) => {
-    const newState = { ...this.state };
-    newState[event.target.name] = event.target.value;
-    this.setState(newState);
+  LikeFunc = () => {
+    this.state.like++;
+    this.GetGet();
   };
-  checkUniqueUser = () => {
-    return this.state.persons.some(
-      (person) =>
-        person.last === this.state.last && person.first === this.state.first
-    );
-  };
-  handleSubmit = (event) => {
-    event.preventDefault();
-    //! if(this.state.first.length>2&&this.state.last.length>2){
-    const checkNum = /^[a-zA-Z]+$/;
-    if (
-      checkNum.test(this.state.first) &&
-      checkNum.test(this.state.last) &&
-      !this.checkUniqueUser()
-    ) {
-      const user = {
-        first: this.state.first,
-        last: this.state.last,
-      };
-      this.btnRef.current.disabled = true;
-      axios
-        .post(`https://61c3018c9cfb8f0017a3e87e.mockapi.io/users`, user)
-        .then((res) => {
-          this.GetGet();
-          this.btnRef.current.disabled = false;
-        });
-    }
+  DisLikeFunc = () => {
+    this.state.dislike++;
+    this.GetGet();
   };
   GetGet = () => {
+    this.state.id++;
+
     axios
-      .get(`https://61c3018c9cfb8f0017a3e87e.mockapi.io/users`)
+      .get(`https://61c70ce390318500175472d8.mockapi.io/match/${this.state.id}`)
       .then((res) => {
         const persons = res.data;
+        console.log(res);
+        this.setState({ persons });
+      })
+      .catch((res) => {
+        const persons = {};
+        persons.name = "Error-End";
+        console.log(res);
         this.setState({ persons });
       });
   };
-  btnDelete = (personId, e) => {
-    e.target.disabled = true;
-    axios
-      .delete(`https://61c3018c9cfb8f0017a3e87e.mockapi.io/users/${personId}`)
-      .then(() => {
-        this.GetGet();
-      });
-  };
-  updatePut = (id, obj) => {
-    axios
-      .put(`https://61c3018c9cfb8f0017a3e87e.mockapi.io/users/${id}`, obj)
-      .then(() => {
-        this.GetGet();
-      });
-  };
+
   render() {
     return (
-      <div>
-        <form onSubmit={this.handleSubmit}>
-          <label>
-            First Name:
-            <input
-              type="text"
-              name="first"
-              onChange={this.handleChange}
-              required
-              minLength={2}
-            />
-          </label>
-          <label>
-            Last Name:
-            <input
-              type="text"
-              name="last"
-              onChange={this.handleChange}
-              required
-              minLength={2}
-            />
-          </label>
-          <button ref={this.btnRef} type="submit">
-            Add
+      <>
+        <div>
+          {this.state.like}
+          <span aria-label="DisLikeFunc" role="img">
+            🤩
+          </span>
+          {this.state.dislike}
+          <span aria-label="DisLikeFunc" role="img">
+            😵
+          </span>
+        </div>
+        <div>
+          <img
+            src={this.state.persons.avatar}
+            alt={this.state.persons.name}
+            width="100px"
+            height="100px"
+          />
+        </div>
+        <div>{this.state.persons.name}</div>
+        <div>
+          <button onClick={this.LikeFunc}>
+            <span aria-label="Like" role="img">
+              ✔️
+            </span>
           </button>
-        </form>
-        <ul>
-          {this.state.persons.map((person) => (
-            <li key={person.id}>
-              {person.first} {person.last}
-              <button onClick={(e) => this.btnDelete(person.id, e)}>
-                Delete
-              </button>
-              <Update id={person} onUpdate={this.updatePut} />
-            </li>
-          ))}
-        </ul>
-      </div>
+          <button onClick={this.DisLikeFunc}>
+            <span aria-label="DisLikeFunc" role="img">
+              ❌
+            </span>
+          </button>
+        </div>
+      </>
     );
   }
 }
